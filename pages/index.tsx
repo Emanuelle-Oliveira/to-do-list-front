@@ -1,19 +1,21 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { createList, getAllList } from '../src/services/list-service';
 import { List } from '../src/interfaces/Ilist';
-import ListCard from '../src/components/List';
+import ListCard from '../src/components/ListCard';
 import { Grid, IconButton, TextField } from '@mui/material';
 import Navbar from '../src/components/Navbar';
 import AddIcon from '@mui/icons-material/Add';
 import { Formik } from 'formik';
+import { useListContext } from '../src/hooks/list-context';
 
 export default function Home() {
-  const [lists, setLists] = useState<List[]>([]);
+  const { lists, setLists } = useListContext();
 
   useEffect(() => {
     getAllList()
       .then((response) => {
+        console.log(response);
         return response;
       })
       .then((data) => {
@@ -67,6 +69,9 @@ export default function Home() {
                 return (
                   <>
                     <TextField
+                      style={{ marginTop: '2px' }}
+                      inputProps={{ style: { fontSize: '14px' } }}
+                      InputLabelProps={{ style: { fontSize: '14px' } }}
                       id='outlined-basic'
                       label='Adicionar lista'
                       variant='outlined'

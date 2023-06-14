@@ -7,3 +7,9 @@ export interface Item {
   order: number;
   listId: number;
 }
+
+export interface CreateItemDto {
+  titleItem: string;
+  listId: number;
+}
+
