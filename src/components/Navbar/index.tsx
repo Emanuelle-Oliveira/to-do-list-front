@@ -11,7 +11,7 @@ export default function Navbar() {
     <AppBar position='static' sx={{ backgroundColor: '#ff700a' }}>
       <Container maxWidth='xl'>
         <Toolbar disableGutters>
-          <ChecklistIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <ChecklistIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, color: 'white' }} />
           <Typography
             variant='h6'
             noWrap
@@ -23,7 +23,7 @@ export default function Navbar() {
               fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.1rem',
-              color: 'inherit',
+              color: 'white',
               textDecoration: 'none',
             }}
           >
@@ -32,7 +32,7 @@ export default function Navbar() {
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} />
 
-          <ChecklistIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+          <ChecklistIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1, color: 'white' }} />
           <Typography
             variant='h6'
             noWrap
@@ -45,7 +45,7 @@ export default function Navbar() {
               fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.1rem',
-              color: 'inherit',
+              color: 'white',
               textDecoration: 'none',
             }}
           >

@@ -17,6 +17,7 @@
     "@mui/icons-material": "latest",
     "@mui/material": "latest",
     "axios": "^1.4.0",
+    "formik": "^2.4.1",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"

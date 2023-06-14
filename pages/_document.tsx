@@ -1,15 +1,8 @@
 import * as React from 'react';
-import Document, {
-  Html,
-  Head,
-  Main,
-  NextScript,
-  DocumentProps,
-  DocumentContext,
-} from 'next/document';
+import Document, { DocumentContext, DocumentProps, Head, Html, Main, NextScript } from 'next/document';
 import createEmotionServer from '@emotion/server/create-instance';
 import { AppType } from 'next/app';
-import theme, { roboto } from '../src/styles/theme';
+import theme from '../src/styles/theme';
 import createEmotionCache from '../src/utils/create-emotion-cache';
 import { MyAppProps } from './_app';
 
@@ -19,12 +12,12 @@ interface MyDocumentProps extends DocumentProps {
 
 export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
   return (
-    <Html lang="en" className={roboto.className}>
+    <Html lang='en'>
       <Head>
         {/* PWA primary color */}
-        <meta name="theme-color" content={theme.palette.primary.main} />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <meta name="emotion-insertion-point" content="" />
+        <meta name='theme-color' content={theme.palette.primary.main} />
+        <link rel='shortcut icon' href='/favicon.ico' />
+        <meta name='emotion-insertion-point' content='' />
         {emotionStyleTags}
       </Head>
       <body>

@@ -1,4 +1,4 @@
-import {Item} from "./Iitem";
+import { Item } from './Iitem';
 
 export interface List {
   id: number;
