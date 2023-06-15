@@ -1,26 +1,12 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Card, CardContent, IconButton, Typography } from '@mui/material';
 import * as React from 'react';
-import { useState } from 'react';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Box from '@mui/material/Box';
-import { Formik } from 'formik';
-import { deleteItem, updateItem } from '../../services/item-service';
+import { deleteItem } from '../../services/item-service';
 import { useListContext } from '../../hooks/list-context';
 import 'react-datepicker/dist/react-datepicker.css';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import ConfirmationDialog from '../common/ConfirmationDialog';
+import UpdateDialog from './UpdateDialog';
 
 interface ItemCardProps {
   id: number;
@@ -42,13 +28,12 @@ export default function ItemCard({
   listId,
 }: ItemCardProps) {
 
-  const [openUpdate, setOpenUpdate] = React.useState(false);
-  const [openDelete, setOpenDelete] = React.useState(false);
+  const [openUpdate, setOpenUpdate] = React.useState<boolean>(false);
+  const [openDelete, setOpenDelete] = React.useState<boolean>(false);
   const { lists, setLists } = useListContext();
 
-  const [startOnDate, setStartOnDate] = useState<Date | null>(new Date());
-  const [endDate, setEndDate] = useState<Date | null>(new Date());
-
+  //const [startOnDate, setStartOnDate] = useState<Date | null>(new Date());
+  //const [endDate, setEndDate] = useState<Date | null>(new Date());
 
   const handleClickOpenUpdate = () => {
     setOpenUpdate(true);
@@ -66,7 +51,7 @@ export default function ItemCard({
     setOpenDelete(false);
   };
 
-  async function handleDelete() {
+  async function handleDeleteItem() {
     await deleteItem(id)
       .then((response) => {
         return response;
@@ -109,143 +94,24 @@ export default function ItemCard({
         </CardContent>
       </Card>
 
-      <Dialog open={openUpdate} onClose={handleCloseUpdate} maxWidth='md'>
-        <Formik
-          initialValues={{
-            titleItem: titleItem,
-            description: description,
-            startDate: startDate,
-            finalDate: finalDate,
-          }}
-          onSubmit={async (values, actions) => {
-            const dto = {
-              titleItem: values.titleItem,
-              description: values.description,
-            };
-            updateItem(id, dto)
-              .then((response) => {
-                return response;
-              }).then((data) => {
-              setLists((prevLists) => {
-                return prevLists.map((list) => {
-                  if (list.id === listId) {
-                    return {
-                      ...list,
-                      items: list.items?.map((item) => {
-                        if (item.id === id) {
-                          return { ...item, ...data.data };
-                        } else {
-                          return item;
-                        }
-                      }),
-                    };
-                  } else {
-                    return list;
-                  }
-                });
-              });
-            });
-            actions.resetForm();
-          }}
-        >
-          {({ values, handleSubmit, setFieldValue }) => {
-            return (
-              <>
-                <DialogContent>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+      <UpdateDialog
+        handleClose={handleCloseUpdate}
+        open={openUpdate}
+        id={id}
+        titleItem={titleItem}
+        description={description}
+        startDate={startDate}
+        finalDate={finalDate}
+        listId={listId}
+      />
 
-                    <TextField
-                      sx={{ width: '500px', marginBottom: '10px', marginTop: '10px' }}
-                      label='Título'
-                      variant='outlined'
-                      size='small'
-                      value={values.titleItem}
-                      onChange={(value) => {
-                        setFieldValue('titleItem', value.target.value);
-                      }}
-                    />
-                    <TextField
-                      label='Descrição'
-                      multiline
-                      rows={4}
-                      fullWidth
-                      sx={{ width: '500px', marginBottom: '10px' }}
-                      value={values.description}
-                      onChange={(value) => {
-                        setFieldValue('description', value.target.value);
-                      }}
-                    />
-                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          label='Data inicial'
-                          sx={{ width: '240px' }}
-                          //value={values.startDate}
-                          /*onChange={(value) => {
-                            setFieldValue('titleItem', value.target.value);
-                          }}*/
-                        />
-                        <DatePicker
-                          label='Data final'
-                          sx={{ width: '240px' }}
-                          //value={values.finalDate}
-                        />
-                      </LocalizationProvider>
-                      {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateRangePicker slots={{ field: SingleInputDateRangeField }} />
-                      </LocalizationProvider>*/}
-                    </Box>
-                  </Box>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleCloseUpdate}>Cancelar</Button>
-                  <Button
-                    onClick={() => {
-                      console.log('submetido');
-                      handleSubmit();
-                      handleCloseUpdate();
-                    }}
-                  >
-                    Salvar
-                  </Button>
-                </DialogActions>
-              </>
-            );
-          }}
-        </Formik>
-      </Dialog>
-
-      <Dialog
+      <ConfirmationDialog
+        handleDelete={handleDeleteItem}
+        handleClose={handleCloseDelete}
         open={openDelete}
-        onClose={handleCloseDelete}
-        maxWidth='sm'
-      >
-        <DialogTitle>
-          {'Tem certeza que deseja deletar esse item?'}
-        </DialogTitle>
-        <DialogContent>
-          <Typography
-            sx={{
-              fontFamily: 'monospace',
-              color: '#706e6e',
-              fontSize: '12px',
-              flexGrow: 1,
-              maxWidth: '180px',
-            }}>
-            {titleItem}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDelete}>Cancelar</Button>
-          <Button onClick={() => {
-            console.log('submetido');
-            handleDelete();
-            handleCloseDelete();
-          }}>
-            Deletar
-          </Button>
-        </DialogActions>
-      </Dialog>
+        message='Tem certeza que deseja deletar esse item?'
+        title={titleItem}
+      />
     </>
   );
 }
