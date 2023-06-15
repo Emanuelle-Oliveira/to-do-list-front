@@ -16,3 +16,9 @@ export const createList = async (
   });
 };
 
+export const deleteList = async (
+  id: number,
+) => {
+  return http.delete<List>(`/list/${id}`);
+};
+

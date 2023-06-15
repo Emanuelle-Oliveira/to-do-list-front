@@ -11,15 +11,16 @@ import {
   Typography,
 } from '@mui/material';
 import * as React from 'react';
+import { useState } from 'react';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Box from '@mui/material/Box';
 import { Formik } from 'formik';
 import { deleteItem, updateItem } from '../../services/item-service';
 import { useListContext } from '../../hooks/list-context';
+import 'react-datepicker/dist/react-datepicker.css';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 interface ItemCardProps {
   id: number;
@@ -43,8 +44,11 @@ export default function ItemCard({
 
   const [openUpdate, setOpenUpdate] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
-  const [value, setValue] = React.useState<[Date | null, Date | null]>([null, null]);
   const { lists, setLists } = useListContext();
+
+  const [startOnDate, setStartOnDate] = useState<Date | null>(new Date());
+  const [endDate, setEndDate] = useState<Date | null>(new Date());
+
 
   const handleClickOpenUpdate = () => {
     setOpenUpdate(true);
@@ -69,10 +73,10 @@ export default function ItemCard({
       }).then((data) => {
         setLists((prevLists) => {
           return prevLists.map((list) => {
-            if (list.id === listId) {
+            if (list.id === data.data.listId) {
               return {
                 ...list,
-                items: list.items?.filter((item) => item.id !== id),
+                items: list.items?.filter((item) => item.id !== data.data.id),
               };
             } else {
               return list;
@@ -187,6 +191,9 @@ export default function ItemCard({
                           //value={values.finalDate}
                         />
                       </LocalizationProvider>
+                      {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateRangePicker slots={{ field: SingleInputDateRangeField }} />
+                      </LocalizationProvider>*/}
                     </Box>
                   </Box>
                 </DialogContent>
