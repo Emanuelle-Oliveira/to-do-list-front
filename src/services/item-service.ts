@@ -1,4 +1,4 @@
-import { CreateItemDto, Item, UpdateItemDto } from '../interfaces/Iitem';
+import { CreateItemDto, Item, UpdateItemDto, UpdateOrderItemDto } from '../interfaces/Iitem';
 import { http } from './http';
 
 export const createItem = async (
@@ -14,6 +14,15 @@ export const updateItem = async (
   dto: UpdateItemDto,
 ) => {
   return http.patch<Item>(`/item/${id}`, {
+    ...dto,
+  });
+};
+
+export const updateOrderItem = async (
+  id: number,
+  dto: UpdateOrderItemDto,
+) => {
+  return http.patch<Item>(`/item/order/${id}`, {
     ...dto,
   });
 };

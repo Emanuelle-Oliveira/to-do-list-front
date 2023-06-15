@@ -19,3 +19,10 @@ export interface UpdateItemDto {
   startDate?: Date | null;
   finalDate?: Date | null;
 }
+
+export interface UpdateOrderItemDto {
+  currentOrder: number,
+  targetOrder: number,
+  currentListId: number,
+  targetListId: number,
+}

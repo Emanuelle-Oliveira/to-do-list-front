@@ -7,6 +7,7 @@ import { Grid } from '@mui/material';
 import Navbar from '../src/components/Navbar';
 import { useListContext } from '../src/hooks/list-context';
 import AddList from '../src/components/AddList';
+import Box from '@mui/material/Box';
 
 export default function Home() {
   const { lists, setLists } = useListContext();
@@ -31,7 +32,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <div
+      <Box
         style={{
           overflowX: 'auto',
           padding: '20px',
@@ -41,7 +42,7 @@ export default function Home() {
       >
         <Grid container spacing={2} style={{ flexWrap: 'nowrap' }}>
           {lists.map((list) => (
-            <Grid item key={list.id} style={{ display: 'inline-flex', minWidth: '300px' }}>
+            <Grid item key={list.id} style={{ display: 'inline-flex', minWidth: '300px', alignSelf: 'flex-start' }}>
               <ListCard
                 id={list.id}
                 titleList={list.titleList}
@@ -54,7 +55,7 @@ export default function Home() {
             <AddList />
           </Grid>
         </Grid>
-      </div>
+      </Box>
     </>
   );
 }

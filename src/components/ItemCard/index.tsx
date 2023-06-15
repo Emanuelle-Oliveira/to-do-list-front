@@ -7,6 +7,8 @@ import { useListContext } from '../../hooks/list-context';
 import 'react-datepicker/dist/react-datepicker.css';
 import ConfirmationDialog from '../common/ConfirmationDialog';
 import UpdateDialog from './UpdateDialog';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface ItemCardProps {
   id: number;
@@ -71,28 +73,49 @@ export default function ItemCard({
       });
   }
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: order });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    cursor: 'grab',
+  };
+
   return (
     <>
-      <Card variant='outlined' sx={{ borderRadius: '6px', marginBottom: '5px' }}>
-        <CardContent sx={{ padding: '5px', display: 'flex', alignItems: 'center' }}>
-          <Typography
-            sx={{
-              fontFamily: 'monospace',
-              color: '#706e6e',
-              fontSize: '12px',
-              flexGrow: 1,
-              maxWidth: '180px',
-            }}>
-            {titleItem}
-          </Typography>
-          <IconButton size='small' onClick={handleClickOpenUpdate} sx={{ alignSelf: 'self-start' }}>
-            <ModeEditIcon fontSize='small' />
-          </IconButton>
-          <IconButton size='small' onClick={handleClickOpenDelete} sx={{ alignSelf: 'self-start' }}>
-            <DeleteIcon fontSize='small' />
-          </IconButton>
-        </CardContent>
-      </Card>
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+      >
+        <Card variant='outlined' sx={{ borderRadius: '6px', marginBottom: '5px' }}>
+          <CardContent sx={{ padding: '5px', display: 'flex', alignItems: 'center' }}>
+            <Typography
+              sx={{
+                fontFamily: 'monospace',
+                color: '#706e6e',
+                fontSize: '12px',
+                flexGrow: 1,
+                maxWidth: '180px',
+              }}>
+              {titleItem}
+            </Typography>
+            <IconButton size='small' onClick={handleClickOpenUpdate} sx={{ alignSelf: 'self-start' }}>
+              <ModeEditIcon fontSize='small' />
+            </IconButton>
+            <IconButton size='small' onClick={handleClickOpenDelete} sx={{ alignSelf: 'self-start' }}>
+              <DeleteIcon fontSize='small' />
+            </IconButton>
+          </CardContent>
+        </Card>
+      </div>
 
       <UpdateDialog
         handleClose={handleCloseUpdate}
@@ -112,6 +135,7 @@ export default function ItemCard({
         message='Tem certeza que deseja deletar esse item?'
         title={titleItem}
       />
+
     </>
   );
 }
