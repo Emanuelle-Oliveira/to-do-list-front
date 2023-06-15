@@ -15,7 +15,6 @@ export default function Home() {
   useEffect(() => {
     getAllList()
       .then((response) => {
-        console.log(response);
         return response;
       })
       .then((data) => {
@@ -61,8 +60,8 @@ export default function Home() {
                   .then((response) => {
                     return response;
                   }).then((data) => {
-                    setLists(prevLists => [...prevLists, { ...data.data, items: [] }]);
-                  });
+                  setLists(prevLists => [...prevLists, { ...data.data, items: [] }]);
+                });
                 actions.resetForm();
               }}>
               {({ values, handleSubmit, setFieldValue }) => {

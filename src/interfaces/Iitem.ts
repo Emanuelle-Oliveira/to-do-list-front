@@ -13,3 +13,9 @@ export interface CreateItemDto {
   listId: number;
 }
 
+export interface UpdateItemDto {
+  titleItem?: string | null;
+  description?: string | null;
+  startDate?: Date | null;
+  finalDate?: Date | null;
+}

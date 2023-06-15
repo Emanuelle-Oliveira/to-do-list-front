@@ -37,8 +37,8 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
             description={item.description}
             startDate={item.startDate}
             finalDate={item.finalDate}
-            listId={item.listId}
             order={item.order}
+            listId={item.listId}
           />
         ))}
         <Formik
@@ -54,13 +54,13 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
               .then((response) => {
                 return response;
               }).then((data) => {
-                const updatedLists = [...lists];
+              const updatedLists = [...lists];
 
-                if (updatedLists[order] && updatedLists[order].items) {
-                  updatedLists[order].items?.push(data.data);
-                }
-                setLists(updatedLists);
-              });
+              if (updatedLists[order] && updatedLists[order].items) {
+                updatedLists[order].items?.push(data.data);
+              }
+              setLists(updatedLists);
+            });
             actions.resetForm();
           }}>
           {({ values, handleSubmit, setFieldValue }) => {
@@ -70,7 +70,6 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
                   style={{ marginTop: '5px', width: '185px' }}
                   inputProps={{ style: { fontSize: '12px' } }}
                   InputLabelProps={{ style: { fontSize: '12px' } }}
-                  id='outlined-basic'
                   label='Adicionar item'
                   variant='outlined'
                   size='small'

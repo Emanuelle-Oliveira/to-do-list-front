@@ -10,20 +10,21 @@ import { red } from '@mui/material/colors';
 
 // ARRUMAR
 const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#ff700a',
+    palette: {
+      primary: {
+        main: '#ff700a',
+      },
+      secondary: {
+        main: '#19857b',
+      },
+      error: {
+        main: red.A400,
+      },
     },
-    secondary: {
-      main: '#19857b',
-    },
-    error: {
-      main: red.A400,
+    typography: {
+      fontFamily: 'monospace',
     },
   },
-  typography: {
-    fontFamily: 'monospace',
-  },
-});
+);
 
 export default theme;
