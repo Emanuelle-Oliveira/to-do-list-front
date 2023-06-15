@@ -1,12 +1,12 @@
-import { Card, CardContent, IconButton, Typography } from '@mui/material';
+import { Card, CardContent, IconButton, TextField, Typography } from '@mui/material';
 import * as React from 'react';
-import { CSSProperties } from 'react';
+import { CSSProperties, useState } from 'react';
 import { Item } from '../../interfaces/Iitem';
 import ItemCard from '../ItemCard';
 import { useListContext } from '../../hooks/list-context';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import Box from '@mui/material/Box';
-import { deleteList } from '../../services/list-service';
+import { deleteList, updateList } from '../../services/list-service';
 import ConfirmationDialog from '../common/ConfirmationDialog';
 import AddItem from './AddItem';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -14,6 +14,7 @@ import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useS
 import { updateOrderItem } from '../../services/item-service';
 import { reorderItems } from '../../utils/reorder-items';
 import { CSS } from '@dnd-kit/utilities';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 interface ListCardProps {
   id: number;
@@ -30,8 +31,34 @@ const cardStyle: CSSProperties = {
 
 export default function ListCard({ id, titleList, order, items }: ListCardProps) {
   const { lists, setLists } = useListContext();
-  const [openDelete, setOpenDelete] = React.useState(false);
-  //const [itemsState, setItemsStates] = useState(items);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(titleList);
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveClick = async () => {
+    await updateList(id, title)
+      .then((response) => {
+        return response;
+      })
+      .then((data) => {
+        console.log(data.data);
+        setLists((prevLists) => prevLists.map(list => {
+          if (list.id === id) {
+            return { ...list, titleList: data.data.titleList };
+          }
+          return list;
+        }));
+      });
+    setIsEditing(false);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -129,10 +156,34 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
             <CardContent>
 
               <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                <Typography
-                  sx={{ fontFamily: 'monospace', fontWeight: 600, color: '#706e6e', flexGrow: 1 }}>
-                  {titleList}
-                </Typography>
+
+                {isEditing ? (
+                  <>
+                    <TextField
+                      value={title}
+                      onChange={handleChange}
+                      size='small'
+                      style={{ height: '40px', width: '165px' }}
+                      inputProps={{ style: { fontSize: '12px' } }}
+                      InputLabelProps={{ style: { fontSize: '12px' } }}
+                    />
+                    <IconButton
+                      style={{ height: '40px', marginLeft: '2px', marginRight: '5px' }}
+                      sx={{ color: '#ff700a' }}
+                      size='small'
+                      onClick={handleSaveClick}
+                    >
+                      <CheckCircleIcon fontSize='small' sx={{ color: '#ff700a' }} />
+                    </IconButton>
+                  </>
+                ) : (
+                  <Typography
+                    sx={{ fontFamily: 'monospace', fontWeight: 600, color: '#706e6e', flexGrow: 1 }}
+                    onClick={handleEditClick}
+                  >
+                    {titleList}
+                  </Typography>
+                )}
                 <IconButton
                   size='small'
                   onClick={handleClickOpenDelete}

@@ -16,6 +16,15 @@ export const createList = async (
   });
 };
 
+export const updateList = async (
+  id: number,
+  titleList: string,
+) => {
+  return http.patch<List>(`/list/${id}`, {
+    titleList: titleList,
+  });
+};
+
 export const updateOrderList = async (
   id: number,
   dto: UpdateOrderListDto,
