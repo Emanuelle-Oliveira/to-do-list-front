@@ -6,3 +6,8 @@ export interface List {
   order: number;
   items?: Item[] | null;
 }
+
+export interface UpdateOrderListDto {
+  currentOrder: number,
+  targetOrder: number,
+}

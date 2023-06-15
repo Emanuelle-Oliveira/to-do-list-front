@@ -9,10 +9,11 @@ import Box from '@mui/material/Box';
 import { deleteList } from '../../services/list-service';
 import ConfirmationDialog from '../common/ConfirmationDialog';
 import AddItem from './AddItem';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { updateOrderItem } from '../../services/item-service';
 import { reorderItems } from '../../utils/reorder-items';
+import { CSS } from '@dnd-kit/utilities';
 
 interface ListCardProps {
   id: number;
@@ -62,9 +63,9 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
   }
 
   async function handleDragEnd(event: DragEndEvent) {
-    console.log('drag end called');
+    //console.log('drag end called');
     const { active, over } = event;
-    console.log(active.id, over?.id);
+    //console.log(active.id, over?.id);
     if (over && items) {
       if (active.id !== over.id) {
 
@@ -96,6 +97,21 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
     }
   }
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: order });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    cursor: 'grab',
+    height: '200px',
+  };
+
   return (
     <>
       <DndContext
@@ -103,45 +119,52 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
         onDragEnd={handleDragEnd}
         sensors={sensors}
       >
-        <Card style={cardStyle} variant='outlined' sx={{ borderRadius: '10px' }}>
-          <CardContent>
+        <div
+          ref={setNodeRef}
+          style={style}
+          {...attributes}
+          {...listeners}
+        >
+          <Card style={cardStyle} variant='outlined' sx={{ borderRadius: '10px' }}>
+            <CardContent>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-              <Typography
-                sx={{ fontFamily: 'monospace', fontWeight: 600, color: '#706e6e', flexGrow: 1 }}>
-                {titleList}
-              </Typography>
-              <IconButton
-                size='small'
-                onClick={handleClickOpenDelete}
-                sx={{ alignSelf: 'self-start', marginRight: '5px' }}
+              <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                <Typography
+                  sx={{ fontFamily: 'monospace', fontWeight: 600, color: '#706e6e', flexGrow: 1 }}>
+                  {titleList}
+                </Typography>
+                <IconButton
+                  size='small'
+                  onClick={handleClickOpenDelete}
+                  sx={{ alignSelf: 'self-start', marginRight: '5px' }}
+                >
+                  <PlaylistRemoveIcon fontSize='small' />
+                </IconButton>
+              </Box>
+              <SortableContext
+                items={items?.map(item => item.order) || []}
+                strategy={verticalListSortingStrategy}
               >
-                <PlaylistRemoveIcon fontSize='small' />
-              </IconButton>
-            </Box>
-            <SortableContext
-              items={items?.map(item => item.order) || []}
-              strategy={verticalListSortingStrategy}
-            >
-              {items?.map((item) => (
-                <ItemCard
-                  key={item.id}
-                  id={item.id}
-                  titleItem={item.titleItem}
-                  description={item.description}
-                  startDate={item.startDate}
-                  finalDate={item.finalDate}
-                  order={item.order}
-                  listId={item.listId}
-                />
-              ))}
-            </SortableContext>
-            <AddItem
-              id={id}
-              order={order}
-            />
-          </CardContent>
-        </Card>
+                {items?.map((item) => (
+                  <ItemCard
+                    key={item.id}
+                    id={item.id}
+                    titleItem={item.titleItem}
+                    description={item.description}
+                    startDate={item.startDate}
+                    finalDate={item.finalDate}
+                    order={item.order}
+                    listId={item.listId}
+                  />
+                ))}
+              </SortableContext>
+              <AddItem
+                id={id}
+                order={order}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </DndContext>
       <ConfirmationDialog
         handleDelete={handleDeleteList}

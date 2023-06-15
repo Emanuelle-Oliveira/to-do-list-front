@@ -1,5 +1,5 @@
 import { http } from './http';
-import { List } from '../interfaces/Ilist';
+import { List, UpdateOrderListDto } from '../interfaces/Ilist';
 
 export const getAllList = async () => {
   return http.get<List[]>('/list')
@@ -13,6 +13,15 @@ export const createList = async (
 ) => {
   return http.post<List>('/list', {
     titleList: titleList,
+  });
+};
+
+export const updateOrderList = async (
+  id: number,
+  dto: UpdateOrderListDto,
+) => {
+  return http.patch<List>(`/list/order/${id}`, {
+    ...dto,
   });
 };
 
