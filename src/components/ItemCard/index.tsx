@@ -57,13 +57,24 @@ export default function ItemCard({
     await deleteItem(id)
       .then((response) => {
         return response;
-      }).then((data) => {
+      })
+      .then((data) => {
         setLists((prevLists) => {
           return prevLists.map((list) => {
             if (list.id === data.data.listId) {
+              const updatedItems = list.items
+                ? list.items
+                  .filter((item) => item.id !== data.data.id)
+                  .map((item, index) => {
+                    if (item.order > data.data.order) {
+                      return { ...item, order: item.order - 1 };
+                    }
+                    return item;
+                  })
+                : [];
               return {
                 ...list,
-                items: list.items?.filter((item) => item.id !== data.data.id),
+                items: updatedItems,
               };
             } else {
               return list;
@@ -79,7 +90,7 @@ export default function ItemCard({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: order });
+  } = useSortable({ id: order + 1 });
 
   const style = {
     transform: CSS.Transform.toString(transform),

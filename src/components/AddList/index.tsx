@@ -13,7 +13,7 @@ export default function AddList() {
     <Formik
       initialValues={{ titleList: '' }}
       onSubmit={async (values, actions) => {
-        console.log(values.titleList);
+        //console.log(values.titleList);
         createList(values.titleList)
           .then((response) => {
             return response;

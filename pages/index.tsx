@@ -48,12 +48,12 @@ export default function Home() {
     console.log(active.id, over?.id);
     if (over) {
       if (active.id !== over.id) {
-        const draggedList = lists.find(list => list.order === active.id);
+        const draggedList = lists.find(list => list.order === (Number(active.id) - 1));
         const id = draggedList?.id;
 
         const dto = {
-          currentOrder: Number(active.id),
-          targetOrder: Number(over.id),
+          currentOrder: Number(active.id) - 1,
+          targetOrder: Number(over.id) - 1,
         };
 
         await updateOrderList(Number(id), dto)
@@ -61,7 +61,7 @@ export default function Home() {
             return response;
           })
           .then((data) => {
-            console.log(data.data);
+            //console.log(data.data);
             const reorderedLists = reorderLists(lists, dto.currentOrder, dto.targetOrder);
             setLists(reorderedLists);
           });
@@ -89,7 +89,7 @@ export default function Home() {
             {lists.map((list) => (
               <Grid item key={list.id} style={{ display: 'inline-flex', minWidth: '300px', alignSelf: 'flex-start' }}>
                 <SortableContext
-                  items={lists.map(list => list.order) || []}
+                  items={lists.map(list => list.order + 1) || []}
                   strategy={horizontalListSortingStrategy}
                 >
                   <ListCard

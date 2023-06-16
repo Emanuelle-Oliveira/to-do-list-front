@@ -45,7 +45,7 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
         return response;
       })
       .then((data) => {
-        console.log(data.data);
+        //console.log(data.data);
         setLists((prevLists) => prevLists.map(list => {
           if (list.id === id) {
             return { ...list, titleList: data.data.titleList };
@@ -82,26 +82,33 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
       .then((response) => {
         return response;
       }).then((data) => {
-        console.log(data.data);
+        //console.log(data.data);
         setLists((prevLists) => {
-          return prevLists.filter((list) => list.id !== data.data.id);
+          return prevLists
+            .filter((list) => list.id !== data.data.id)
+            .map((list) => {
+              if (list.order > data.data.order) {
+                return { ...list, order: list.order - 1 };
+              }
+              return list;
+            });
         });
       });
   }
 
   async function handleDragEnd(event: DragEndEvent) {
-    //console.log('drag end called');
+    console.log('drag end called');
     const { active, over } = event;
-    //console.log(active.id, over?.id);
+    console.log(active.id, over?.id);
     if (over && items) {
       if (active.id !== over.id) {
 
-        const draggedItem = items?.find(item => item.order === active.id);
+        const draggedItem = items?.find(item => item.order === (Number(active.id) - 1));
         const itemId = draggedItem?.id;
 
         const dto = {
-          currentOrder: Number(active.id),
-          targetOrder: Number(over.id),
+          currentOrder: Number(active.id) - 1,
+          targetOrder: Number(over.id) - 1,
           currentListId: id,
           targetListId: id,
         };
@@ -130,7 +137,7 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: order });
+  } = useSortable({ id: order + 1 });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -193,7 +200,7 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
                 </IconButton>
               </Box>
               <SortableContext
-                items={items?.map(item => item.order) || []}
+                items={items?.map(item => item.order + 1) || []}
                 strategy={verticalListSortingStrategy}
               >
                 {items?.map((item) => (
