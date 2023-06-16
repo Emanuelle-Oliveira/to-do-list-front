@@ -1,11 +1,12 @@
 import { Formik } from 'formik';
 import { Button, Dialog, DialogActions, DialogContent, TextField } from '@mui/material';
 import Box from '@mui/material/Box';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import * as React from 'react';
 import { useListContext } from '../../../hooks/list-context';
 import handleUpdateItem from '../../../handlers/handleUpdateItem';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { addMinutes, setHours, setMinutes, setSeconds } from 'date-fns';
 
 interface UpdateDialogProps {
   handleClose: () => void;
@@ -30,6 +31,16 @@ export default function UpdateDialog({
 }: UpdateDialogProps) {
   const { lists, setLists } = useListContext();
 
+  console.log(startDate, finalDate);
+
+  const [dataForm, setDataForm] = React.useState<{
+    startDate: Date | null,
+    finalDate: Date | null,
+  }>({
+    startDate: startDate ? addMinutes(new Date(startDate), new Date(startDate).getTimezoneOffset()) : null,
+    finalDate: finalDate ? addMinutes(new Date(finalDate), new Date(finalDate).getTimezoneOffset()) : null,
+  });
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth='md'>
       <Formik
@@ -40,6 +51,12 @@ export default function UpdateDialog({
           finalDate: finalDate,
         }}
         onSubmit={async (values, actions) => {
+          if (dataForm.startDate) {
+            values.startDate = setHours(setMinutes(setSeconds(dataForm.startDate, 0), 0), 0);
+          }
+          if (dataForm.finalDate) {
+            values.finalDate = setHours(setMinutes(setSeconds(dataForm.finalDate, 0), 0), 0);
+          }
           await handleUpdateItem(values, actions, id, listId, setLists);
         }}
       >
@@ -70,24 +87,27 @@ export default function UpdateDialog({
                     }}
                   />
                   <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
                       <DatePicker
-                        label='Data inicial'
-                        sx={{ width: '240px' }}
-                        //value={values.startDate}
-                        /*onChange={(value) => {
-                          setFieldValue('titleItem', value.target.value);
-                        }}*/
+                        label='Data Inicial'
+                        value={dataForm.startDate}
+                        onChange={(value) => {
+                          console.log('Selected start date:', value);
+                          setDataForm({ ...dataForm, startDate: value });
+                        }}
+                        renderInput={(params) => <TextField {...params} sx={{ width: '245px' }} />}
                       />
                       <DatePicker
-                        label='Data final'
-                        sx={{ width: '240px' }}
-                        //value={values.finalDate}
+                        label='Data Final'
+                        minDate={dataForm.startDate}
+                        value={dataForm.finalDate}
+                        onChange={(value) => {
+                          console.log('Selected final date:', value);
+                          setDataForm({ ...dataForm, finalDate: value });
+                        }}
+                        renderInput={(params) => <TextField {...params} sx={{ width: '245px' }} />}
                       />
                     </LocalizationProvider>
-                    {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateRangePicker slots={{ field: SingleInputDateRangeField }} />
-                      </LocalizationProvider>*/}
                   </Box>
                 </Box>
               </DialogContent>

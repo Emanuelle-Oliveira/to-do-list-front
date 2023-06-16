@@ -14,6 +14,8 @@ export default function handleUpdateItem(
   const dto = {
     titleItem: values.titleItem,
     description: values.description,
+    startDate: values.startDate,
+    finalDate: values.finalDate,
   };
   updateItem(id, dto)
     .then((response) => {

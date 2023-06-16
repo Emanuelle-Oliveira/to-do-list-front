@@ -3,7 +3,6 @@ import * as React from 'react';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useListContext } from '../../hooks/list-context';
-import 'react-datepicker/dist/react-datepicker.css';
 import ConfirmationDialog from '../common/ConfirmationDialog';
 import UpdateDialog from './UpdateDialog';
 import { useSortable } from '@dnd-kit/sortable';
