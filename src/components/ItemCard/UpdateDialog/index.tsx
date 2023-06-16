@@ -1,12 +1,11 @@
-import { Formik, FormikHelpers } from 'formik';
-import { updateItem } from '../../../services/item-service';
+import { Formik } from 'formik';
 import { Button, Dialog, DialogActions, DialogContent, TextField } from '@mui/material';
 import Box from '@mui/material/Box';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import * as React from 'react';
 import { useListContext } from '../../../hooks/list-context';
-import { UpdateItemDto } from '../../../interfaces/Iitem';
+import handleUpdateItem from '../../../handlers/handleUpdateItem';
 
 interface UpdateDialogProps {
   handleClose: () => void;
@@ -29,40 +28,7 @@ export default function UpdateDialog({
   finalDate,
   listId,
 }: UpdateDialogProps) {
-
   const { lists, setLists } = useListContext();
-
-  async function handleUpdateItem(values: UpdateItemDto, actions: FormikHelpers<any>) {
-    const dto = {
-      titleItem: values.titleItem,
-      description: values.description,
-    };
-    updateItem(id, dto)
-      .then((response) => {
-        return response;
-      })
-      .then((data) => {
-        setLists((prevLists) => {
-          return prevLists.map((list) => {
-            if (list.id === listId) {
-              return {
-                ...list,
-                items: list.items?.map((item) => {
-                  if (item.id === id) {
-                    return { ...item, ...data.data };
-                  } else {
-                    return item;
-                  }
-                }),
-              };
-            } else {
-              return list;
-            }
-          });
-        });
-      });
-    actions.resetForm();
-  }
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth='md'>
@@ -74,7 +40,7 @@ export default function UpdateDialog({
           finalDate: finalDate,
         }}
         onSubmit={async (values, actions) => {
-          await handleUpdateItem(values, actions);
+          await handleUpdateItem(values, actions, id, listId, setLists);
         }}
       >
         {({ values, handleSubmit, setFieldValue }) => {
@@ -82,7 +48,6 @@ export default function UpdateDialog({
             <>
               <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-
                   <TextField
                     sx={{ width: '500px', marginBottom: '10px', marginTop: '10px' }}
                     label='Título'

@@ -1,27 +1,18 @@
-import { createList } from '../../services/list-service';
 import { IconButton, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Formik } from 'formik';
 import * as React from 'react';
 import { useListContext } from '../../hooks/list-context';
+import handleCreateList from '../../handlers/handleCreateList';
 
 export default function AddList() {
-
   const { lists, setLists } = useListContext();
 
   return (
     <Formik
       initialValues={{ titleList: '' }}
       onSubmit={async (values, actions) => {
-        //console.log(values.titleList);
-        createList(values.titleList)
-          .then((response) => {
-            return response;
-          })
-          .then((data) => {
-            setLists(prevLists => [...prevLists, { ...data.data, items: [] }]);
-          });
-        actions.resetForm();
+        handleCreateList(values, actions, setLists);
       }}>
       {({ values, handleSubmit, setFieldValue }) => {
         return (

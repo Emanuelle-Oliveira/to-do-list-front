@@ -1,9 +1,9 @@
-import { createItem } from '../../../services/item-service';
 import { IconButton, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { Formik, FormikHelpers } from 'formik';
+import { Formik } from 'formik';
 import * as React from 'react';
 import { useListContext } from '../../../hooks/list-context';
+import handleCreateItem from '../../../handlers/handleCreateItem';
 
 interface AddItemProps {
   id: number;
@@ -11,28 +11,7 @@ interface AddItemProps {
 }
 
 export default function AddItem({ id, order }: AddItemProps) {
-
   const { lists, setLists } = useListContext();
-
-  async function handleCreateItem(values: { titleItem: string }, actions: FormikHelpers<typeof values>) {
-    const dto = {
-      titleItem: values.titleItem,
-      listId: id,
-    };
-    createItem(dto)
-      .then((response) => {
-        return response;
-      })
-      .then((data) => {
-        const updatedLists = [...lists];
-
-        if (updatedLists[order] && updatedLists[order].items) {
-          updatedLists[order].items?.push(data.data);
-        }
-        setLists(updatedLists);
-      });
-    actions.resetForm();
-  }
 
   return (
     <Formik
@@ -40,7 +19,7 @@ export default function AddItem({ id, order }: AddItemProps) {
         titleItem: '',
       }}
       onSubmit={async (values, actions) => {
-        await handleCreateItem(values, actions);
+        await handleCreateItem(values, actions, id, order, lists, setLists);
       }}
     >
       {({ values, handleSubmit, setFieldValue }) => {

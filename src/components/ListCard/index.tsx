@@ -6,15 +6,18 @@ import ItemCard from '../ItemCard';
 import { useListContext } from '../../hooks/list-context';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import Box from '@mui/material/Box';
-import { deleteList, updateList } from '../../services/list-service';
 import ConfirmationDialog from '../common/ConfirmationDialog';
 import AddItem from './AddItem';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { updateOrderItem } from '../../services/item-service';
-import { reorderItems } from '../../utils/reorder-items';
+import { closestCenter, DndContext } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import sensors from '../../utils/sensors';
+import handleOpenDialog from '../../handlers/handleOpenDialog';
+import handleCloseDialog from '../../handlers/handleCloseDialog';
+import handleDragEndItem from '../../handlers/handleDragEndItem';
+import handleDeleteList from '../../handlers/handleDeleteList';
+import handleUpdateTitleList from '../../handlers/handleUpdateTitleList';
 
 interface ListCardProps {
   id: number;
@@ -35,102 +38,6 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(titleList);
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleSaveClick = async () => {
-    await updateList(id, title)
-      .then((response) => {
-        return response;
-      })
-      .then((data) => {
-        //console.log(data.data);
-        setLists((prevLists) => prevLists.map(list => {
-          if (list.id === id) {
-            return { ...list, titleList: data.data.titleList };
-          }
-          return list;
-        }));
-      });
-    setIsEditing(false);
-  };
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value);
-  };
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 150,
-        tolerance: 5,
-      },
-    }),
-  );
-
-  const handleClickOpenDelete = () => {
-    setOpenDelete(true);
-  };
-
-  const handleCloseDelete = () => {
-    setOpenDelete(false);
-  };
-
-  async function handleDeleteList() {
-    await deleteList(id)
-      .then((response) => {
-        return response;
-      }).then((data) => {
-        //console.log(data.data);
-        setLists((prevLists) => {
-          return prevLists
-            .filter((list) => list.id !== data.data.id)
-            .map((list) => {
-              if (list.order > data.data.order) {
-                return { ...list, order: list.order - 1 };
-              }
-              return list;
-            });
-        });
-      });
-  }
-
-  async function handleDragEnd(event: DragEndEvent) {
-    console.log('drag end called');
-    const { active, over } = event;
-    console.log(active.id, over?.id);
-    if (over && items) {
-      if (active.id !== over.id) {
-
-        const draggedItem = items?.find(item => item.order === (Number(active.id) - 1));
-        const itemId = draggedItem?.id;
-
-        const dto = {
-          currentOrder: Number(active.id) - 1,
-          targetOrder: Number(over.id) - 1,
-          currentListId: id,
-          targetListId: id,
-        };
-        await updateOrderItem(Number(itemId), dto)
-          .then((response) => {
-            return response;
-          })
-          .then((data) => {
-            const reorderedItems = reorderItems(items, dto.currentOrder, dto.targetOrder);
-            setLists(prevLists => {
-              return prevLists.map(list => {
-                if (list.id === id) {
-                  return { ...list, items: reorderedItems };
-                }
-                return list;
-              });
-            });
-          });
-      }
-    }
-  }
-
   const {
     attributes,
     listeners,
@@ -150,8 +57,10 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
     <>
       <DndContext
         collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        sensors={sensors}
+        onDragEnd={(event) => {
+          handleDragEndItem(event, id, setLists, items);
+        }}
+        sensors={sensors()}
       >
         <div
           ref={setNodeRef}
@@ -161,14 +70,14 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
         >
           <Card style={cardStyle} variant='outlined' sx={{ borderRadius: '10px' }}>
             <CardContent>
-
               <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-
                 {isEditing ? (
                   <>
                     <TextField
                       value={title}
-                      onChange={handleChange}
+                      onChange={(event) => {
+                        setTitle(event.target.value);
+                      }}
                       size='small'
                       style={{ height: '40px', width: '165px' }}
                       inputProps={{ style: { fontSize: '12px' } }}
@@ -178,7 +87,9 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
                       style={{ height: '40px', marginLeft: '2px', marginRight: '5px' }}
                       sx={{ color: '#ff700a' }}
                       size='small'
-                      onClick={handleSaveClick}
+                      onClick={() => {
+                        handleUpdateTitleList(id, title, setLists, setIsEditing);
+                      }}
                     >
                       <CheckCircleIcon fontSize='small' sx={{ color: '#ff700a' }} />
                     </IconButton>
@@ -186,19 +97,25 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
                 ) : (
                   <Typography
                     sx={{ fontFamily: 'monospace', fontWeight: 600, color: '#706e6e', flexGrow: 1 }}
-                    onClick={handleEditClick}
+                    onClick={() => {
+                      setIsEditing(true);
+                    }}
                   >
                     {titleList}
                   </Typography>
                 )}
+
                 <IconButton
                   size='small'
-                  onClick={handleClickOpenDelete}
+                  onClick={() => {
+                    handleOpenDialog(setOpenDelete);
+                  }}
                   sx={{ alignSelf: 'self-start', marginRight: '5px' }}
                 >
                   <PlaylistRemoveIcon fontSize='small' />
                 </IconButton>
               </Box>
+
               <SortableContext
                 items={items?.map(item => item.order + 1) || []}
                 strategy={verticalListSortingStrategy}
@@ -216,6 +133,7 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
                   />
                 ))}
               </SortableContext>
+
               <AddItem
                 id={id}
                 order={order}
@@ -224,9 +142,14 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
           </Card>
         </div>
       </DndContext>
+
       <ConfirmationDialog
-        handleDelete={handleDeleteList}
-        handleClose={handleCloseDelete}
+        handleDelete={() => {
+          handleDeleteList(id, setLists);
+        }}
+        handleClose={() => {
+          handleCloseDialog(setOpenDelete);
+        }}
         open={openDelete}
         message='Tem certeza que deseja deletar essa lista?'
         title={titleList}
@@ -234,4 +157,3 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
     </>
   );
 }
-

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect } from 'react';
-import { getAllList, updateOrderList } from '../src/services/list-service';
+import { getAllList } from '../src/services/list-service';
 import { List } from '../src/interfaces/Ilist';
 import ListCard from '../src/components/ListCard';
 import { Grid } from '@mui/material';
@@ -8,22 +8,13 @@ import Navbar from '../src/components/Navbar';
 import { useListContext } from '../src/hooks/list-context';
 import AddList from '../src/components/AddList';
 import Box from '@mui/material/Box';
-import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { closestCenter, DndContext } from '@dnd-kit/core';
 import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
-import { reorderLists } from '../src/utils/reorder-lists';
+import sensors from '../src/utils/sensors';
+import handleDragEndList from '../src/handlers/handleDragEndList';
 
 export default function Home() {
   const { lists, setLists } = useListContext();
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 150,
-        tolerance: 5,
-      },
-    }),
-  );
-
 
   useEffect(() => {
     getAllList()
@@ -42,40 +33,15 @@ export default function Home() {
       });
   }, []);
 
-  async function handleDragEnd(event: DragEndEvent) {
-    console.log('drag end called');
-    const { active, over } = event;
-    console.log(active.id, over?.id);
-    if (over) {
-      if (active.id !== over.id) {
-        const draggedList = lists.find(list => list.order === (Number(active.id) - 1));
-        const id = draggedList?.id;
-
-        const dto = {
-          currentOrder: Number(active.id) - 1,
-          targetOrder: Number(over.id) - 1,
-        };
-
-        await updateOrderList(Number(id), dto)
-          .then((response) => {
-            return response;
-          })
-          .then((data) => {
-            //console.log(data.data);
-            const reorderedLists = reorderLists(lists, dto.currentOrder, dto.targetOrder);
-            setLists(reorderedLists);
-          });
-      }
-    }
-  }
-
   return (
     <>
       <Navbar />
       <DndContext
         collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        sensors={sensors}
+        onDragEnd={(event) => {
+          handleDragEndList(event, lists, setLists);
+        }}
+        sensors={sensors()}
       >
         <Box
           style={{
@@ -101,6 +67,7 @@ export default function Home() {
                 </SortableContext>
               </Grid>
             ))}
+            
             <Grid item style={{ display: 'inline-flex', minWidth: '300px' }}>
               <AddList />
             </Grid>

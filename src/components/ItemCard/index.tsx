@@ -2,13 +2,15 @@ import { Card, CardContent, IconButton, Typography } from '@mui/material';
 import * as React from 'react';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { deleteItem } from '../../services/item-service';
 import { useListContext } from '../../hooks/list-context';
 import 'react-datepicker/dist/react-datepicker.css';
 import ConfirmationDialog from '../common/ConfirmationDialog';
 import UpdateDialog from './UpdateDialog';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import handleCloseDialog from '../../handlers/handleCloseDialog';
+import handleOpenDialog from '../../handlers/handleOpenDialog';
+import handleDeleteItem from '../../handlers/handleDeleteItem';
 
 interface ItemCardProps {
   id: number;
@@ -29,60 +31,9 @@ export default function ItemCard({
   order,
   listId,
 }: ItemCardProps) {
-
   const [openUpdate, setOpenUpdate] = React.useState<boolean>(false);
   const [openDelete, setOpenDelete] = React.useState<boolean>(false);
   const { lists, setLists } = useListContext();
-
-  //const [startOnDate, setStartOnDate] = useState<Date | null>(new Date());
-  //const [endDate, setEndDate] = useState<Date | null>(new Date());
-
-  const handleClickOpenUpdate = () => {
-    setOpenUpdate(true);
-  };
-
-  const handleCloseUpdate = () => {
-    setOpenUpdate(false);
-  };
-
-  const handleClickOpenDelete = () => {
-    setOpenDelete(true);
-  };
-
-  const handleCloseDelete = () => {
-    setOpenDelete(false);
-  };
-
-  async function handleDeleteItem() {
-    await deleteItem(id)
-      .then((response) => {
-        return response;
-      })
-      .then((data) => {
-        setLists((prevLists) => {
-          return prevLists.map((list) => {
-            if (list.id === data.data.listId) {
-              const updatedItems = list.items
-                ? list.items
-                  .filter((item) => item.id !== data.data.id)
-                  .map((item, index) => {
-                    if (item.order > data.data.order) {
-                      return { ...item, order: item.order - 1 };
-                    }
-                    return item;
-                  })
-                : [];
-              return {
-                ...list,
-                items: updatedItems,
-              };
-            } else {
-              return list;
-            }
-          });
-        });
-      });
-  }
 
   const {
     attributes,
@@ -118,10 +69,22 @@ export default function ItemCard({
               }}>
               {titleItem}
             </Typography>
-            <IconButton size='small' onClick={handleClickOpenUpdate} sx={{ alignSelf: 'self-start' }}>
+            <IconButton
+              size='small'
+              onClick={() => {
+                handleOpenDialog(setOpenUpdate);
+              }}
+              sx={{ alignSelf: 'self-start' }}
+            >
               <ModeEditIcon fontSize='small' />
             </IconButton>
-            <IconButton size='small' onClick={handleClickOpenDelete} sx={{ alignSelf: 'self-start' }}>
+            <IconButton
+              size='small'
+              onClick={() => {
+                handleOpenDialog(setOpenDelete);
+              }}
+              sx={{ alignSelf: 'self-start' }}
+            >
               <DeleteIcon fontSize='small' />
             </IconButton>
           </CardContent>
@@ -129,7 +92,9 @@ export default function ItemCard({
       </div>
 
       <UpdateDialog
-        handleClose={handleCloseUpdate}
+        handleClose={() => {
+          handleCloseDialog(setOpenUpdate);
+        }}
         open={openUpdate}
         id={id}
         titleItem={titleItem}
@@ -140,13 +105,16 @@ export default function ItemCard({
       />
 
       <ConfirmationDialog
-        handleDelete={handleDeleteItem}
-        handleClose={handleCloseDelete}
+        handleDelete={() => {
+          handleDeleteItem(id, setLists);
+        }}
+        handleClose={() => {
+          handleCloseDialog(setOpenDelete);
+        }}
         open={openDelete}
         message='Tem certeza que deseja deletar esse item?'
         title={titleItem}
       />
-
     </>
   );
 }
