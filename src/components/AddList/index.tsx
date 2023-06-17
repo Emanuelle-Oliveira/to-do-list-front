@@ -3,7 +3,11 @@ import AddIcon from '@mui/icons-material/Add';
 import { Formik } from 'formik';
 import * as React from 'react';
 import { useListContext } from '../../hooks/list-context';
-import handleCreateList from '../../handlers/handleCreateList';
+import handleCreateList from '../../handlers/list/handleCreateList';
+
+type Error = {
+  titleList?: string;
+};
 
 export default function AddList() {
   const { lists, setLists } = useListContext();
@@ -11,10 +15,17 @@ export default function AddList() {
   return (
     <Formik
       initialValues={{ titleList: '' }}
+      validate={(values) => {
+        const errors: Error = {};
+        if (!values.titleList) {
+          errors.titleList = 'Título obrigatório';
+        }
+        return errors;
+      }}
       onSubmit={async (values, actions) => {
-        handleCreateList(values, actions, setLists);
+        await handleCreateList(values, actions, setLists);
       }}>
-      {({ values, handleSubmit, setFieldValue }) => {
+      {({ values, errors, touched, handleSubmit, setFieldValue }) => {
         return (
           <>
             <TextField
@@ -29,12 +40,13 @@ export default function AddList() {
               onChange={(value) => {
                 setFieldValue('titleList', value.target.value);
               }}
+              error={touched.titleList && !!errors.titleList}
+              helperText={touched.titleList && errors.titleList}
             />
             <IconButton
               style={{ height: '40px', marginLeft: '8px' }}
               sx={{ color: '#ff700a' }}
               onClick={() => {
-                console.log('submetido');
                 handleSubmit();
               }}
             >

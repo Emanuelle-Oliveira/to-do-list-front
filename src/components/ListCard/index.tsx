@@ -1,4 +1,4 @@
-import { Card, CardContent, IconButton, TextField, Typography } from '@mui/material';
+import { Card, CardContent, IconButton, Typography } from '@mui/material';
 import * as React from 'react';
 import { CSSProperties, useState } from 'react';
 import { Item } from '../../interfaces/Iitem';
@@ -11,13 +11,12 @@ import AddItem from './AddItem';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import sensors from '../../utils/sensors';
-import handleOpenDialog from '../../handlers/handleOpenDialog';
-import handleCloseDialog from '../../handlers/handleCloseDialog';
-import handleDragEndItem from '../../handlers/handleDragEndItem';
-import handleDeleteList from '../../handlers/handleDeleteList';
-import handleUpdateTitleList from '../../handlers/handleUpdateTitleList';
+import handleOpenDialog from '../../handlers/dialog/handleOpenDialog';
+import handleCloseDialog from '../../handlers/dialog/handleCloseDialog';
+import handleDragEndItem from '../../handlers/item/handleDragEndItem';
+import handleDeleteList from '../../handlers/list/handleDeleteList';
+import UpdateTitle from './UpdateTitle';
 
 interface ListCardProps {
   id: number;
@@ -36,7 +35,6 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
   const { lists, setLists } = useListContext();
   const [openDelete, setOpenDelete] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState(titleList);
 
   const {
     attributes,
@@ -57,8 +55,8 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
     <>
       <DndContext
         collisionDetection={closestCenter}
-        onDragEnd={(event) => {
-          handleDragEndItem(event, id, setLists, items);
+        onDragEnd={async (event) => {
+          await handleDragEndItem(event, id, setLists, items);
         }}
         sensors={sensors()}
       >
@@ -70,30 +68,9 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
         >
           <Card style={cardStyle} variant='outlined' sx={{ borderRadius: '10px' }}>
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
                 {isEditing ? (
-                  <>
-                    <TextField
-                      value={title}
-                      onChange={(event) => {
-                        setTitle(event.target.value);
-                      }}
-                      size='small'
-                      style={{ height: '40px', width: '165px' }}
-                      inputProps={{ style: { fontSize: '12px' } }}
-                      InputLabelProps={{ style: { fontSize: '12px' } }}
-                    />
-                    <IconButton
-                      style={{ height: '40px', marginLeft: '2px', marginRight: '5px' }}
-                      sx={{ color: '#ff700a' }}
-                      size='small'
-                      onClick={() => {
-                        handleUpdateTitleList(id, title, setLists, setIsEditing);
-                      }}
-                    >
-                      <CheckCircleIcon fontSize='small' sx={{ color: '#ff700a' }} />
-                    </IconButton>
-                  </>
+                  <UpdateTitle id={id} titleList={titleList} setLists={setLists} setIsEditing={setIsEditing} />
                 ) : (
                   <Typography
                     sx={{ fontFamily: 'monospace', fontWeight: 600, color: '#706e6e', flexGrow: 1 }}
@@ -144,8 +121,8 @@ export default function ListCard({ id, titleList, order, items }: ListCardProps)
       </DndContext>
 
       <ConfirmationDialog
-        handleDelete={() => {
-          handleDeleteList(id, setLists);
+        handleDelete={async () => {
+          await handleDeleteList(id, setLists);
         }}
         handleClose={() => {
           handleCloseDialog(setOpenDelete);

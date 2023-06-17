@@ -1,7 +1,7 @@
 import { PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 
 export default function sensors() {
-  const sensors = useSensors(
+  return useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         delay: 150,
@@ -9,5 +9,4 @@ export default function sensors() {
       },
     }),
   );
-  return sensors;
 }

@@ -1,12 +1,17 @@
-import { UpdateItemDto } from '../interfaces/Iitem';
+import { UpdateItemDto } from '../../interfaces/Iitem';
 import { FormikHelpers } from 'formik';
-import { updateItem } from '../services/item-service';
+import { updateItem } from '../../services/item-service';
 import React from 'react';
-import { List } from '../interfaces/Ilist';
+import { List } from '../../interfaces/Ilist';
 
 export default function handleUpdateItem(
   values: UpdateItemDto,
-  actions: FormikHelpers<any>,
+  actions: FormikHelpers<{
+    titleItem: string,
+    description: string | null,
+    startDate: Date | null,
+    finalDate: Date | null
+  }>,
   id: number,
   listId: number,
   setLists: React.Dispatch<React.SetStateAction<List[]>>,

@@ -40,7 +40,6 @@ export default function ConfirmationDialog({
       <DialogActions>
         <Button onClick={handleClose}>Cancelar</Button>
         <Button onClick={() => {
-          console.log('submetido');
           handleDelete();
           handleClose();
         }}>

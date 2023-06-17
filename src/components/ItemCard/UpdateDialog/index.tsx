@@ -3,7 +3,7 @@ import { Button, Dialog, DialogActions, DialogContent, TextField } from '@mui/ma
 import Box from '@mui/material/Box';
 import * as React from 'react';
 import { useListContext } from '../../../hooks/list-context';
-import handleUpdateItem from '../../../handlers/handleUpdateItem';
+import handleUpdateItem from '../../../handlers/item/handleUpdateItem';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { addMinutes, setHours, setMinutes, setSeconds } from 'date-fns';
@@ -19,6 +19,12 @@ interface UpdateDialogProps {
   listId: number;
 }
 
+type Error = {
+  titleItem?: string;
+  startDate?: string;
+  finalDate?: string;
+};
+
 export default function UpdateDialog({
   handleClose,
   open,
@@ -31,36 +37,46 @@ export default function UpdateDialog({
 }: UpdateDialogProps) {
   const { lists, setLists } = useListContext();
 
-  console.log(startDate, finalDate);
-
-  const [dataForm, setDataForm] = React.useState<{
-    startDate: Date | null,
-    finalDate: Date | null,
-  }>({
-    startDate: startDate ? addMinutes(new Date(startDate), new Date(startDate).getTimezoneOffset()) : null,
-    finalDate: finalDate ? addMinutes(new Date(finalDate), new Date(finalDate).getTimezoneOffset()) : null,
-  });
-
   return (
     <Dialog open={open} onClose={handleClose} maxWidth='md'>
       <Formik
         initialValues={{
           titleItem: titleItem,
           description: description,
-          startDate: startDate,
-          finalDate: finalDate,
+          startDate: startDate ? addMinutes(new Date(startDate), new Date(startDate).getTimezoneOffset()) : null,
+          finalDate: finalDate ? addMinutes(new Date(finalDate), new Date(finalDate).getTimezoneOffset()) : null,
+        }}
+        validate={(values) => {
+          const errors: Error = {};
+          if (!values.titleItem) {
+            errors.titleItem = 'Título obrigatório';
+          }
+
+          if (values.startDate && values.finalDate) {
+            if (values.finalDate < values.startDate) {
+              errors.finalDate = 'Data final menor que a inicial';
+            }
+            if (values.startDate > values.finalDate) {
+              errors.startDate = 'Data inicial maior que a final';
+            }
+          }
+          return errors;
         }}
         onSubmit={async (values, actions) => {
-          if (dataForm.startDate) {
-            values.startDate = setHours(setMinutes(setSeconds(dataForm.startDate, 0), 0), 0);
+          if (values.description == '') {
+            values.description = null;
           }
-          if (dataForm.finalDate) {
-            values.finalDate = setHours(setMinutes(setSeconds(dataForm.finalDate, 0), 0), 0);
+          if (values.startDate) {
+            values.startDate = setHours(setMinutes(setSeconds(values.startDate, 0), 0), 0);
+          }
+          if (values.finalDate) {
+            values.finalDate = setHours(setMinutes(setSeconds(values.finalDate, 0), 0), 0);
           }
           await handleUpdateItem(values, actions, id, listId, setLists);
+          handleClose();
         }}
       >
-        {({ values, handleSubmit, setFieldValue }) => {
+        {({ values, errors, touched, handleSubmit, setFieldValue }) => {
           return (
             <>
               <DialogContent>
@@ -74,6 +90,8 @@ export default function UpdateDialog({
                     onChange={(value) => {
                       setFieldValue('titleItem', value.target.value);
                     }}
+                    error={touched.titleItem && !!errors.titleItem}
+                    helperText={touched.titleItem && errors.titleItem}
                   />
                   <TextField
                     label='Descrição'
@@ -90,22 +108,33 @@ export default function UpdateDialog({
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                       <DatePicker
                         label='Data Inicial'
-                        value={dataForm.startDate}
+                        maxDate={values.finalDate}
+                        value={values.startDate}
                         onChange={(value) => {
-                          console.log('Selected start date:', value);
-                          setDataForm({ ...dataForm, startDate: value });
+                          setFieldValue('startDate', value);
                         }}
-                        renderInput={(params) => <TextField {...params} sx={{ width: '245px' }} />}
+                        renderInput={(params) =>
+                          <TextField
+                            {...params}
+                            sx={{ width: '245px' }}
+                            error={touched.startDate && !!errors.startDate}
+                            helperText={touched.startDate && errors.startDate}
+                          />}
                       />
                       <DatePicker
                         label='Data Final'
-                        minDate={dataForm.startDate}
-                        value={dataForm.finalDate}
+                        minDate={values.startDate}
+                        value={values.finalDate}
                         onChange={(value) => {
-                          console.log('Selected final date:', value);
-                          setDataForm({ ...dataForm, finalDate: value });
+                          setFieldValue('finalDate', value);
                         }}
-                        renderInput={(params) => <TextField {...params} sx={{ width: '245px' }} />}
+                        renderInput={(params) =>
+                          <TextField
+                            {...params}
+                            sx={{ width: '245px' }}
+                            error={touched.finalDate && !!errors.finalDate}
+                            helperText={touched.finalDate && errors.finalDate}
+                          />}
                       />
                     </LocalizationProvider>
                   </Box>
@@ -115,9 +144,7 @@ export default function UpdateDialog({
                 <Button onClick={handleClose}>Cancelar</Button>
                 <Button
                   onClick={() => {
-                    console.log('submetido');
                     handleSubmit();
-                    handleClose();
                   }}
                 >
                   Salvar

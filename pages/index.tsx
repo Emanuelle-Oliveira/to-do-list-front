@@ -11,7 +11,7 @@ import Box from '@mui/material/Box';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import sensors from '../src/utils/sensors';
-import handleDragEndList from '../src/handlers/handleDragEndList';
+import handleDragEndList from '../src/handlers/list/handleDragEndList';
 
 export default function Home() {
   const { lists, setLists } = useListContext();
@@ -38,8 +38,8 @@ export default function Home() {
       <Navbar />
       <DndContext
         collisionDetection={closestCenter}
-        onDragEnd={(event) => {
-          handleDragEndList(event, lists, setLists);
+        onDragEnd={async (event) => {
+          await handleDragEndList(event, lists, setLists);
         }}
         sensors={sensors()}
       >
@@ -67,7 +67,7 @@ export default function Home() {
                 </SortableContext>
               </Grid>
             ))}
-            
+
             <Grid item style={{ display: 'inline-flex', minWidth: '300px' }}>
               <AddList />
             </Grid>

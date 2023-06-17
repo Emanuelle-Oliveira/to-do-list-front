@@ -1,6 +1,6 @@
-import { updateList } from '../services/list-service';
+import { updateList } from '../../services/list-service';
 import React from 'react';
-import { List } from '../interfaces/Ilist';
+import { List } from '../../interfaces/Ilist';
 
 export default async function handleUpdateTitleList(
   id: number,
@@ -13,7 +13,6 @@ export default async function handleUpdateTitleList(
       return response;
     })
     .then((data) => {
-      //console.log(data.data);
       setLists((prevLists) => prevLists.map(list => {
         if (list.id === id) {
           return { ...list, titleList: data.data.titleList };

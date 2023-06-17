@@ -1,6 +1,6 @@
-import { deleteItem } from '../services/item-service';
+import { deleteItem } from '../../services/item-service';
 import React from 'react';
-import { List } from '../interfaces/Ilist';
+import { List } from '../../interfaces/Ilist';
 
 export default async function handleDeleteItem(
   id: number,

@@ -7,9 +7,9 @@ import ConfirmationDialog from '../common/ConfirmationDialog';
 import UpdateDialog from './UpdateDialog';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import handleCloseDialog from '../../handlers/handleCloseDialog';
-import handleOpenDialog from '../../handlers/handleOpenDialog';
-import handleDeleteItem from '../../handlers/handleDeleteItem';
+import handleCloseDialog from '../../handlers/dialog/handleCloseDialog';
+import handleOpenDialog from '../../handlers/dialog/handleOpenDialog';
+import handleDeleteItem from '../../handlers/item/handleDeleteItem';
 
 interface ItemCardProps {
   id: number;
@@ -104,8 +104,8 @@ export default function ItemCard({
       />
 
       <ConfirmationDialog
-        handleDelete={() => {
-          handleDeleteItem(id, setLists);
+        handleDelete={async () => {
+          await handleDeleteItem(id, setLists);
         }}
         handleClose={() => {
           handleCloseDialog(setOpenDelete);

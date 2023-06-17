@@ -14,7 +14,7 @@ export interface CreateItemDto {
 }
 
 export interface UpdateItemDto {
-  titleItem?: string | null;
+  titleItem: string;
   description?: string | null;
   startDate?: Date | null;
   finalDate?: Date | null;

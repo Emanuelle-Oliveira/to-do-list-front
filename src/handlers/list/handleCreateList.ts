@@ -1,6 +1,6 @@
-import { createList } from '../services/list-service';
+import { createList } from '../../services/list-service';
 import { FormikHelpers } from 'formik';
-import { List } from '../interfaces/Ilist';
+import { List } from '../../interfaces/Ilist';
 import React from 'react';
 
 export default async function handleCreateList(
@@ -8,7 +8,6 @@ export default async function handleCreateList(
   actions: FormikHelpers<typeof values>,
   setLists: React.Dispatch<React.SetStateAction<List[]>>,
 ) {
-  //console.log(values.titleList);
   createList(values.titleList)
     .then((response) => {
       return response;

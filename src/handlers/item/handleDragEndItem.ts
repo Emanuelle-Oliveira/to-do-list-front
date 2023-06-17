@@ -1,9 +1,9 @@
 import { DragEndEvent } from '@dnd-kit/core';
-import { updateOrderItem } from '../services/item-service';
-import { reorderItems } from '../utils/reorder-items';
-import { List } from '../interfaces/Ilist';
+import { updateOrderItem } from '../../services/item-service';
+import { reorderItems } from '../../utils/reorder-items';
+import { List } from '../../interfaces/Ilist';
 import React from 'react';
-import { Item } from '../interfaces/Iitem';
+import { Item } from '../../interfaces/Iitem';
 
 export default async function handleDragEndItem(
   event: DragEndEvent,
@@ -11,9 +11,7 @@ export default async function handleDragEndItem(
   setLists: React.Dispatch<React.SetStateAction<List[]>>,
   items?: Item[] | null,
 ) {
-  console.log('drag end called');
   const { active, over } = event;
-  console.log(active.id, over?.id);
 
   if (over && items) {
     if (active.id !== over.id) {

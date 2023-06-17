@@ -3,12 +3,16 @@ import AddIcon from '@mui/icons-material/Add';
 import { Formik } from 'formik';
 import * as React from 'react';
 import { useListContext } from '../../../hooks/list-context';
-import handleCreateItem from '../../../handlers/handleCreateItem';
+import handleCreateItem from '../../../handlers/item/handleCreateItem';
 
 interface AddItemProps {
   id: number;
   order: number;
 }
+
+type Error = {
+  titleItem?: string;
+};
 
 export default function AddItem({ id, order }: AddItemProps) {
   const { lists, setLists } = useListContext();
@@ -18,11 +22,18 @@ export default function AddItem({ id, order }: AddItemProps) {
       initialValues={{
         titleItem: '',
       }}
+      validate={(values) => {
+        const errors: Error = {};
+        if (!values.titleItem) {
+          errors.titleItem = 'Título obrigatório';
+        }
+        return errors;
+      }}
       onSubmit={async (values, actions) => {
         await handleCreateItem(values, actions, id, order, lists, setLists);
       }}
     >
-      {({ values, handleSubmit, setFieldValue }) => {
+      {({ values, errors, touched, handleSubmit, setFieldValue }) => {
         return (
           <>
             <TextField
@@ -36,12 +47,13 @@ export default function AddItem({ id, order }: AddItemProps) {
               onChange={(value) => {
                 setFieldValue('titleItem', value.target.value);
               }}
+              error={touched.titleItem && !!errors.titleItem}
+              helperText={touched.titleItem && errors.titleItem}
             />
             <IconButton
               style={{ height: '40px', marginLeft: '5px' }}
               sx={{ color: '#ff700a' }}
               onClick={() => {
-                console.log('submetido');
                 handleSubmit();
               }}
             >
